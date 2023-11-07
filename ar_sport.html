@@ -1,0 +1,93 @@
+<script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+
+<html>
+<head>
+  <title>インタラクティブ・ユニバーサルリーグ</title>
+</head>
+<body>
+  <a-scene>
+    <a-assets>
+      <img id="ball" src="ball.png" />
+    </a-assets>
+
+    <a-box id="field" position="0 0 0" size="100 100 10" color="#000000" />
+    <a-sphere id="goal" position="50 0 0" radius="10" color="#ffffff" />
+
+    <a-entity id="player" position="0 0 0" rotation="0 0 0" scale="1 1 1">
+      <a-image src="player.png" />
+    </a-entity>
+
+    <script>
+      // ユニバーサルデザイン
+
+      // 視覚障害者向けに、音声や振動でボールやゴールの位置を知らせる
+      const ball = document.getElementById("ball");
+      const goal = document.getElementById("goal");
+
+      function updateBallPosition() {
+        const position = ball.getBoundingClientRect();
+        const top = position.top + window.innerHeight / 2;
+        const left = position.left + window.innerWidth / 2;
+        window.speechSynthesis.speak(`ボールの位置は、画面の<span class="math-inline">\{top\}px、</span>{left}pxです。`);
+        window.navigator.vibrate(500);
+      }
+
+      ball.addEventListener("click", updateBallPosition);
+
+      // 聴覚障害者向けに、字幕でボールやゴールの動きを表示する
+      const player = document.getElementById("player");
+      const ball = document.getElementById("ball");
+      const goal = document.getElementById("goal");
+
+      function updateBallPosition() {
+        const position = ball.getBoundingClientRect();
+        const top = position.top + window.innerHeight / 2;
+        const left = position.left + window.innerWidth / 2;
+        const text = `ボールの位置は、画面の<span class="math-inline">\{top\}px、</span>{left}pxです。`;
+        const element = document.createElement("div");
+        element.textContent = text;
+        player.appendChild(element);
+      }
+
+      ball.addEventListener("click", updateBallPosition);
+
+      // 運動機能に障害がある人向けに、操作を簡易化する
+      const player = document.getElementById("player");
+
+      function movePlayer() {
+        const position = player.getObject3D().position;
+        const deltaX = window.innerWidth / 2 * event.deltaX;
+        const deltaY = window.innerHeight / 2 * event.deltaY;
+        position.x += deltaX;
+        position.y += deltaY;
+        player.getObject3D().position = position;
+      }
+
+      document.addEventListener("keydown", movePlayer);
+
+      // 観客参加機能
+
+      // 観客が試合中に1回、特定のエフェクトや障害物を追加できる
+      const field = document.getElementById("field");
+
+      function addEffect() {
+        const effect = document.querySelector("input[name='effect']:checked");
+        const effectData = {
+          type: effect.value,
+          position: field.getObject3D().position,
+        };
+        field.appendChild(AFrame.create(effectData));
+      }
+
+      document.querySelector("input[name='effect']").addEventListener("change", addEffect);
+
+      // 観客が試合の状況をリアルタイムで視聴できる
+      const players = document.querySelectorAll("a-entity[id^='player']");
+
+      function updatePlayerPositions() {
+        for (const player of players) {
+          const position = player.getObject3D().position;
+          const text = `プレイヤー<span class="math-inline">\{player\.id\}の位置は、画面の</span>{position.x}px、${position.y}pxです。`;
+          const element = document.createElement("div");
+          element.textContent = text;
+          document.querySelector(".viewer").appendChild(element);
