@@ -9,12 +9,12 @@
     <a-assets>
       <img id="ball" src="ball.png" />
     </a-assets>
-    <!-- Match Daydream controller if present and for specified hand. -->
-    <a-entity daydream-controls="hand: left"></a-entity>
-    <a-entity daydream-controls="hand: right"></a-entity>
+
 
     <a-sphere id="goal" position="50 0 0" radius="10" color="#ffffff" />
-
+    <!-- Match Daydream controller if present and for specified hand. -->
+    <a-entity daydream-controls="hand: left">
+    <a-entity daydream-controls="hand: right">
     <a-entity id="player" position="0 0 0" rotation="0 0 0" scale="1 1 1">
       <a-image src="player.png" />
     </a-entity>
